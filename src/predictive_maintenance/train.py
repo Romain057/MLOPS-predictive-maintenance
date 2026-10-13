@@ -1,7 +1,7 @@
 import pandas as pd
 from sklearn.compose import ColumnTransformer
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import f1_score, precision_score, recall_score
+from sklearn.metrics import f1_score, precision_score, recall_score, confusion_matrix
 from sklearn.model_selection import train_test_split
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import OneHotEncoder
@@ -56,10 +56,15 @@ def evaluation(y_true, y_pred):
     f1 = f1_score(y_true, y_pred)
     precision = precision_score(y_true, y_pred)
     recall = recall_score(y_true, y_pred)
+    matrice = confusion_matrix(y_true, y_pred)
+    tn, fp, fn, tp = matrice.ravel()
     metrics = {
         "f1": f1, 
         "precision": precision, 
-        "recall": recall
+        "recall": recall, 
+        "fausse alerte": int(fp),
+        "panne non detectée": int(fn),
+        "panne detectée": int(tp),
         }
     return metrics
 
