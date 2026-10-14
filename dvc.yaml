@@ -1,12 +1,36 @@
 stages:
+  prepare:
+    cmd: python -m predictive_maintenance.prepare
+    deps:
+    - data/raw/data.csv
+    - src/predictive_maintenance/common.py
+    - src/predictive_maintenance/prepare.py
+    params:
+    - prepare
+    outs:
+    - data/processed
+
   train:
     cmd: python -m predictive_maintenance.train
     deps:
-    - data/raw/data.csv
+    - data/processed/train.csv
+    - src/predictive_maintenance/common.py
     - src/predictive_maintenance/train.py
     params:
-    - class_weight
-    - max_depth
-    - n_estimators
-    - random_state
-    - test_size
+    - train
+    outs:
+    - outputs/candidate.json
+
+  evaluate:
+    cmd: python -m predictive_maintenance.evaluate
+    deps:
+    - data/processed/test.csv
+    - outputs/candidate.json
+    - src/predictive_maintenance/common.py
+    - src/predictive_maintenance/evaluate.py
+    params:
+    - evaluate
+    metrics:
+    - outputs/evaluation.json:
+        cache: false
+    always_changed: true
