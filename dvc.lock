@@ -1,0 +1,20 @@
+schema: '2.0'
+stages:
+  train:
+    cmd: python -m predictive_maintenance.train
+    deps:
+    - path: data/raw/data.csv
+      hash: md5
+      md5: f0adaa9c5e25366c6df1cc2684479871
+      size: 522048
+    - path: src/predictive_maintenance/train.py
+      hash: md5
+      md5: 782f494c962bb2d2a764827b078e2e31
+      size: 3848
+    params:
+      params.yaml:
+        class_weight: balanced
+        max_depth:
+        n_estimators: 100
+        random_state: 42
+        test_size: 0.2

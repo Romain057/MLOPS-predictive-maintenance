@@ -1,0 +1,12 @@
+stages:
+  train:
+    cmd: python -m predictive_maintenance.train
+    deps:
+    - data/raw/data.csv
+    - src/predictive_maintenance/train.py
+    params:
+    - class_weight
+    - max_depth
+    - n_estimators
+    - random_state
+    - test_size

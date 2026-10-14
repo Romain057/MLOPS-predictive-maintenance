@@ -8,15 +8,17 @@ from sklearn.preprocessing import OneHotEncoder
 import mlflow
 from mlflow import MlflowClient
 from mlflow.models import infer_signature
+import yaml
 
 CSV_PATH = "data/raw/data.csv"
-RANDOM_STATE = 42
-TEST_SIZE = 0.2
-N_ESTIMATORS = 100 
-MAX_DEPTH = None
 EXPERIMENT_NAME = "predictive-maintenance"
 MODEL_NAME = "predictive-maintenance"
-CLASS_WEIGHT = "balanced"
+PARAMS_PATH = "params.yaml"
+
+def load_params(path):
+    with open(path) as f: 
+        return yaml.safe_load(f)
+
 
 def load_data(csv_path):
     df = pd.read_csv(csv_path)
@@ -28,24 +30,24 @@ def load_data(csv_path):
     return X, y
 
 
-def split(X, y): 
+def split(X, y, test_size, random_state): 
     X_train, X_test, y_train, y_test = train_test_split(
         X,
         y,
-        test_size=TEST_SIZE,
-        random_state=RANDOM_STATE,
+        test_size=test_size,
+        random_state=random_state,
         stratify=y
     )
     return X_train, X_test, y_train, y_test
 
-def build_pipeline():
+def build_pipeline(n_estimators, max_depth, class_weight, random_state):
     t = [("type", OneHotEncoder(), ["Type"])]
     preprocessing = ColumnTransformer(transformers = t, remainder="passthrough")
     model = RandomForestClassifier(
-        n_estimators=N_ESTIMATORS,
-        max_depth=MAX_DEPTH,
-        random_state=RANDOM_STATE,
-        class_weight=CLASS_WEIGHT,
+        n_estimators=n_estimators,
+        max_depth=max_depth,
+        random_state=random_state,
+        class_weight=class_weight,
     )
     pipeline = Pipeline(steps=[("preprocessing", preprocessing), ("model", model)])
 
@@ -62,31 +64,35 @@ def evaluation(y_true, y_pred):
         "f1": f1, 
         "precision": precision, 
         "recall": recall, 
-        "fausse alerte": int(fp),
-        "panne non detectée": int(fn),
-        "panne detectée": int(tp),
+        "false_alarms": int(fp),
+        "missed_failures": int(fn),
+        "detected_failures": int(tp),
         }
     return metrics
 
 
 if __name__ == "__main__":
+    params = load_params(PARAMS_PATH)
     X, y = load_data(CSV_PATH)
-    X_train, X_test, y_train, y_test = split(X, y)
+    X_train, X_test, y_train, y_test = split(X, y, params["test_size"], params["random_state"])
 
     mlflow.set_experiment(EXPERIMENT_NAME)
 
     with mlflow.start_run():
-        pipeline = build_pipeline()
+        pipeline = build_pipeline(params["n_estimators"], 
+                                  params["max_depth"], 
+                                  params["class_weight"], 
+                                  params["random_state"])
         pipeline.fit(X_train, y_train)
         y_pred = pipeline.predict(X_test)
         metrics = evaluation(y_test, y_pred)
         print(metrics)
 
-        mlflow.log_params({"n_estimators": N_ESTIMATORS,  
-                           "max_depth": MAX_DEPTH, 
-                           "random_state": RANDOM_STATE, 
-                           "test_size": TEST_SIZE,
-                           "class_weight": CLASS_WEIGHT})
+        mlflow.log_params({"n_estimators": params["n_estimators"],  
+                           "max_depth": params["max_depth"], 
+                           "random_state": params["random_state"], 
+                           "test_size": params["test_size"],
+                           "class_weight": params["class_weight"]})
 
         mlflow.log_metrics(metrics)
 
