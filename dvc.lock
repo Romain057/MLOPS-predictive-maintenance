@@ -3,18 +3,82 @@ stages:
   train:
     cmd: python -m predictive_maintenance.train
     deps:
+    - path: data/processed/train.csv
+      hash: md5
+      md5: 24a374bac1423ba23f8bef59a11dea5d
+      size: 243989
+    - path: src/predictive_maintenance/common.py
+      hash: md5
+      md5: 5d6d71b29400654c03dea6c82756c3bc
+      size: 637
+    - path: src/predictive_maintenance/train.py
+      hash: md5
+      md5: 5104d347b415eb9e4b950e0960c9930c
+      size: 4551
+    params:
+      params.yaml:
+        train:
+          n_estimators: 100
+          max_depth:
+          class_weight: balanced
+          random_state: 42
+    outs:
+    - path: outputs/candidate.json
+      hash: md5
+      md5: a458473b06f092ed6aacb9e306810414
+      size: 75
+  prepare:
+    cmd: python -m predictive_maintenance.prepare
+    deps:
     - path: data/raw/data.csv
       hash: md5
       md5: f0adaa9c5e25366c6df1cc2684479871
       size: 522048
-    - path: src/predictive_maintenance/train.py
+    - path: src/predictive_maintenance/common.py
       hash: md5
-      md5: 782f494c962bb2d2a764827b078e2e31
-      size: 3848
+      md5: 5d6d71b29400654c03dea6c82756c3bc
+      size: 637
+    - path: src/predictive_maintenance/prepare.py
+      hash: md5
+      md5: e9f2ca91077c45ebee187a9a61a4f0b0
+      size: 1685
     params:
       params.yaml:
-        class_weight: balanced
-        max_depth:
-        n_estimators: 100
-        random_state: 42
-        test_size: 0.2
+        prepare:
+          test_size: 0.2
+          random_state: 42
+    outs:
+    - path: data/processed
+      hash: md5
+      md5: 47f05435a525a3e7d6edd7445d412207.dir
+      size: 305103
+      nfiles: 2
+  evaluate:
+    cmd: python -m predictive_maintenance.evaluate
+    deps:
+    - path: data/processed/test.csv
+      hash: md5
+      md5: 9608b2ca73c3c6a3d4b54b669f8a215b
+      size: 61114
+    - path: outputs/candidate.json
+      hash: md5
+      md5: a458473b06f092ed6aacb9e306810414
+      size: 75
+    - path: src/predictive_maintenance/common.py
+      hash: md5
+      md5: 5d6d71b29400654c03dea6c82756c3bc
+      size: 637
+    - path: src/predictive_maintenance/evaluate.py
+      hash: md5
+      md5: ed6908015bb7f7e6a6921031c23fdfab
+      size: 3755
+    params:
+      params.yaml:
+        evaluate:
+          cost_missed_failure: 10
+          cost_false_alarm: 1
+    outs:
+    - path: outputs/evaluation.json
+      hash: md5
+      md5: d44b817070dfb021b7b91a503b4dd14a
+      size: 132
