@@ -37,7 +37,15 @@ def require_tracking_uri():
 
 
 def git_is_clean(paths):
-    pass
+    result = subprocess.run(
+        ["git", "status", "--porcelain", "--", *paths],
+        capture_output=True,
+        text=True,
+        check=True,
+    )
+    return result.stdout.strip() == ""
+
 
 def file_md5(path):
-    pass
+    with open(path, "rb") as f:
+        return hashlib.md5(f.read()).hexdigest()

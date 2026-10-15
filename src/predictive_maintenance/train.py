@@ -15,8 +15,12 @@ from predictive_maintenance.common import (
     MODEL_NAME,
     PARAMS_PATH,
     TRAIN_PATH,
+    TRACKED_INPUTS,
     load_params,
     split_xy,
+    file_md5,
+    git_is_clean,
+    require_tracking_uri,
 )
 
 
@@ -35,6 +39,8 @@ def build_pipeline(n_estimators, max_depth, class_weight, random_state):
 
 
 if __name__ == "__main__":
+    require_tracking_uri()
+    git_dirty = not git_is_clean(TRACKED_INPUTS)
     params = load_params(PARAMS_PATH)["train"]
 
     train_df = pd.read_csv(TRAIN_PATH)
@@ -50,9 +56,10 @@ if __name__ == "__main__":
         pipeline.fit(X_train, y_train)
 
         mlflow.log_params(params)
+        mlflow.log_param("train_data_md5", file_md5(TRAIN_PATH))
+        mlflow.set_tag("git_dirty", git_dirty)
 
         signature = infer_signature(X_train, pipeline.predict(X_train))
-        
         model_info = mlflow.sklearn.log_model(sk_model=pipeline, 
                                               name="model", 
                                               signature=signature, 
@@ -63,7 +70,8 @@ if __name__ == "__main__":
     os.makedirs("outputs", exist_ok=True)
 
     dict = {"run_id": run.info.run_id, 
-            "version": model_info.registered_model_version}
+            "version": model_info.registered_model_version,
+            "git": git_dirty}
     
     with open(CANDIDATE_PATH, "w", encoding="utf-8") as f:
         json.dump(dict, f, indent=4, ensure_ascii=False)
