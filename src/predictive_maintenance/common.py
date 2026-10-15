@@ -1,4 +1,7 @@
 import yaml
+import os
+import hashlib
+import subprocess
 
 RAW_PATH = "data/raw/data.csv"
 TRAIN_PATH = "data/processed/train.csv"
@@ -13,6 +16,8 @@ ALIAS = "champion"
 
 TARGET = "Machine failure"
 DROP_COLUMNS = ["UDI", "Product ID", "TWF", "HDF", "PWF", "OSF", "RNF"]
+TRACKED_INPUTS = ["src", "params.yaml", "dvc.yaml", "data/raw/data.csv.dvc"]
+
 
 def load_params(path):
     with open(path) as f: 
@@ -24,3 +29,15 @@ def split_xy(df):
     y = df[TARGET]
 
     return X, y
+
+
+def require_tracking_uri():
+    if not os.environ.get("MLFLOW_TRACKING_URI"):
+        raise RuntimeError("URI MLflow n'est pas definit")
+
+
+def git_is_clean(paths):
+    pass
+
+def file_md5(path):
+    pass

@@ -36,15 +36,10 @@ def evaluation(y_true, y_pred):
 
 
 def cost(metrics, cost_missed_failure, cost_false_alarm):
-    # TODO : renvoyer cost_missed_failure × pannes ratées + cost_false_alarm × fausses alertes,
-    #   en lisant les deux comptages dans le dictionnaire metrics.
     return (metrics["missed_failures"] * cost_missed_failure) + (metrics["false_alarms"] * cost_false_alarm)
 
 
 def get_champion_version(client):
-    # TODO : renvoyer client.get_model_version_by_alias(MODEL_NAME, ALIAS).version.
-    #   Si l'alias n'existe pas encore (tout premier modèle), MLflow lève une MlflowException :
-    #   l'attraper avec try/except et renvoyer None.
     try:
         return client.get_model_version_by_alias(MODEL_NAME, ALIAS).version
     except MlflowException as e:
@@ -55,17 +50,12 @@ if __name__ == "__main__":
     params = load_params(PARAMS_PATH)["evaluate"]
     client = MlflowClient()
 
-    # TODO : lire TEST_PATH et obtenir X_test, y_test avec split_xy.
     test_df = pd.read_csv(TEST_PATH)
     X_test, y_test = split_xy(test_df)
 
-    # TODO : lire CANDIDATE_PATH avec json.load.
     with open(CANDIDATE_PATH) as f:
         candidate = json.load(f)
 
-    # TODO : charger le candidat avec mlflow.pyfunc.load_model(f"models:/{MODEL_NAME}/{candidate['version']}"),
-    #   prédire sur X_test, calculer ses métriques avec evaluation(),
-    #   puis ajouter au dictionnaire la clé "cost" calculée avec cost().
     candidate_model = mlflow.pyfunc.load_model(f"models:/{MODEL_NAME}/{candidate['version']}")
     y_pred = candidate_model.predict(X_test)
     candidate_metrics = evaluation(y_test, y_pred)
