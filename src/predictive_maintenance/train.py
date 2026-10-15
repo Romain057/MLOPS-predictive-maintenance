@@ -71,7 +71,7 @@ if __name__ == "__main__":
 
     dict = {"run_id": run.info.run_id, 
             "version": model_info.registered_model_version,
-            "git": git_dirty}
+            "git_dirty": git_dirty}
     
     with open(CANDIDATE_PATH, "w", encoding="utf-8") as f:
         json.dump(dict, f, indent=4, ensure_ascii=False)
