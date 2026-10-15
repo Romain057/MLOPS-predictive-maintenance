@@ -1,2 +1,10 @@
 .env/ 
 src/UNKNOWN.egg-info/
+src/predictive_maintenance/__pycache__
+src/mlops_predictive_maintenance.egg-info
+mlflow.db
+mlflow.db
+mlruns/
+mlartifacts/
+data/processed/
+outputs/

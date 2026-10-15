@@ -20,8 +20,6 @@ def load_params(path):
 
 
 def split_xy(df):
-    df = df.drop(columns = DROP_COLUMNS)
-
     X = df.drop(columns = TARGET)
     y = df[TARGET]
 

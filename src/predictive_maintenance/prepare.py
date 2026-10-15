@@ -11,7 +11,7 @@ from predictive_maintenance.common import (
     TEST_PATH,
     TRAIN_PATH,
     load_params,
-    split_xy,
+    
 )
 
 if __name__ == "__main__":
@@ -38,7 +38,7 @@ if __name__ == "__main__":
     train_csv = train_df.to_csv(TRAIN_PATH, index=False)
     test_csv = test_df.to_csv(TEST_PATH, index=False)
     # TODO : afficher le nombre de lignes et le taux de panne de chaque fichier, pour contrôle.
-    print(f"nombre de ligne du train : {len(train_csv)}, taux : {taux_train}")
-    print(f"nombre de ligne du test : {len(test_csv)}, taux : {taux_test}")
+    print(f"nombre de ligne du train : {len(train_df)}, taux : {taux_train}")
+    print(f"nombre de ligne du test : {len(test_df)}, taux : {taux_test}")
 
     

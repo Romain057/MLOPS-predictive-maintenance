@@ -38,7 +38,7 @@ def evaluation(y_true, y_pred):
 def cost(metrics, cost_missed_failure, cost_false_alarm):
     # TODO : renvoyer cost_missed_failure × pannes ratées + cost_false_alarm × fausses alertes,
     #   en lisant les deux comptages dans le dictionnaire metrics.
-    return (metrics["missed_failure"] * cost_missed_failure) + (metrics["false_alarms"] * cost_false_alarm)
+    return (metrics["missed_failures"] * cost_missed_failure) + (metrics["false_alarms"] * cost_false_alarm)
 
 
 def get_champion_version(client):
@@ -60,7 +60,8 @@ if __name__ == "__main__":
     X_test, y_test = split_xy(test_df)
 
     # TODO : lire CANDIDATE_PATH avec json.load.
-    candidate = json.load(CANDIDATE_PATH)
+    with open(CANDIDATE_PATH) as f:
+        candidate = json.load(f)
 
     # TODO : charger le candidat avec mlflow.pyfunc.load_model(f"models:/{MODEL_NAME}/{candidate['version']}"),
     #   prédire sur X_test, calculer ses métriques avec evaluation(),
